@@ -11,3 +11,5 @@
 # Weight file
 - fashion20190930T0958 (1.42GB)
 - http://naver.me/x8484YRo
+- mask_rcnn_coco.h5 (245.6MB)
+- http://naver.me/FeJBJRKJ
