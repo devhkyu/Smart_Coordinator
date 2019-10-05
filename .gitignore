@@ -1,0 +1,9 @@
+# ignore directories
+test/
+train/
+fashion20190930T0958/
+Mask_RCNN/
+url_data/
+
+# ignore files
+*.h5
