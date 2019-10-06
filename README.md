@@ -13,3 +13,23 @@
 - http://naver.me/x8484YRo
 - mask_rcnn_coco.h5 (245.6MB)
 - http://naver.me/FeJBJRKJ
+
+# Module Version
+- tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
+- keras (2.3.0)
+
+# Errors
+- AttributeError: 'Model' object has no attribute 'metrics_tensors'
+- Mask_RCNN/mrcnn/model.py line 2191:
+
+        # Add metrics for losses
+        for name in loss_names:
+            self.keras_model.metrics_tensors = []   # You should add this code
+            if name in self.keras_model.metrics_names:
+                continue
+            layer = self.keras_model.get_layer(name)
+            self.keras_model.metrics_names.append(name)
+            loss = (
+                tf.reduce_mean(layer.output, keepdims=True)
+                * self.config.LOSS_WEIGHTS.get(name, 1.))
+            self.keras_model.metrics_tensors.append(loss)
