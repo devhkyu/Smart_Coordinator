@@ -91,10 +91,29 @@ def resize_url_image(img):
     img = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
     return img
 
+#############################################
+# Read url_data to dataFrame choose item you want
 
 # Read CAMSCON.csv for URL Image
 url_df = pd.read_csv('url_data/CAMSCON.csv')
 url_df.columns = ['url']
+
+# Read FashionGio47.csv for URL Image
+# url_df = pd.read_csv('url_data/FashionGio47.csv')
+# url_df.columns = ['url', 'title', 'text']
+
+# Read FashionWebzineSnpp(Image).csv for URL Image
+# url_df = pd.read_csv('url_data/FashionWebzineSnpp(Image).csv')
+# url_df.columns = ['url']
+
+# Read Musinsa.csv for URL Image
+# url_df = pd.read_csv('url_data/Musinsa.csv')
+# url_df.columns = ['url', 'text']
+
+# Read specific url
+# url = 'http://www.fashiongio.com/PEG/15415578699231.jpg'
+# url_df = pd.DataFrame({"url": [url]})
+#############################################
 
 # Select Weight File manually
 model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
