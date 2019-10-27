@@ -38,7 +38,7 @@ import itertools
 # Initialize DATA_DIR, ROOT_DIR
 DATA_DIR = Path('')
 ROOT_DIR = Path('')
-sys.path.append(ROOT_DIR/'Mask_RCNN')
+sys.path.append(ROOT_DIR / 'Mask_RCNN')
 
 # Initialize NUM_CATS, IMAGE_SIZE
 NUM_CATS = 46
@@ -61,6 +61,7 @@ class FashionConfig(Config):
 
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
     # DETECTION_NMS_THRESHOLD = 0.0
+    DETECTION_MIN_CONFIDENCE = 0.85
 
     STEPS_PER_EPOCH = 1  # 1000
     VALIDATION_STEPS = 1  # 200
@@ -68,11 +69,11 @@ class FashionConfig(Config):
 
 # Execute Configuration
 config = FashionConfig()
-# config.display()
+config.display()
 
 
 # Load Label Descriptions to label_descriptions
-with open(DATA_DIR/"label_descriptions.json") as f:
+with open(DATA_DIR / "label_descriptions.json") as f:
     label_descriptions = json.load(f)
 
 # From label_descriptions['categories'] to label_names
@@ -90,6 +91,7 @@ def resize_image(image_path):
 def resize_url_image(img):
     img = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
     return img
+
 
 #############################################
 # Read url_data to dataFrame choose item you want
@@ -116,6 +118,7 @@ url_df.columns = ['url']
 #############################################
 
 # Select Weight File manually
+# model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
 model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
 
 
@@ -156,7 +159,7 @@ def refine_masks(masks, rois):
         masks[:, :, m] = np.logical_and(masks[:, :, m], np.logical_not(union_mask))
         union_mask = np.logical_or(masks[:, :, m], union_mask)
     for m in range(masks.shape[-1]):
-        mask_pos = np.where(masks[:, :, m]==True)
+        mask_pos = np.where(masks[:, :, m] == True)
         if np.any(mask_pos):
             y1, x1 = np.min(mask_pos, axis=1)
             y2, x2 = np.max(mask_pos, axis=1)
@@ -164,10 +167,12 @@ def refine_masks(masks, rois):
     return masks, rois
 
 
+res = []
+
 # URL Image Prediction
-Loop = 10   # Set your loop
-for i in range(Loop):
-    url = random.choice(url_df['url'])
+for i in range(2):
+    print("\nProcess [%d/%d]" % (i, url_df.__len__()))
+    url = url_df['url'][i]
     img = np.array(Image.open(urlopen(url)))
     result = model.detect([resize_url_image(img)], verbose=1)
     r = result[0]
@@ -188,3 +193,15 @@ for i in range(Loop):
     visualize.display_instances(img, rois, masks, r['class_ids'],
                                 ['bg'] + label_names, r['scores'],
                                 title=url, figsize=(12, 12))
+    res.append({
+        "rois": r['rois'],
+        "class_ids": r['class_ids'],
+        "scores": r['scores'],
+        "masks": r['masks'],
+    })
+
+# predict = pd.DataFrame(res)
+# predict = predict.drop(columns='rois')
+# predict = predict.drop(columns='masks')
+# print(predict)
+# predict.to_csv("pred_camscon.csv", mode='w')
