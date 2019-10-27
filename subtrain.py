@@ -69,8 +69,9 @@ class FashionConfig(Config):
     IMAGE_RESIZE_MODE = 'none'
 
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
-    STEPS_PER_EPOCH = 1      # 1000
-    VALIDATION_STEPS = 1      # 200
+    RPN_NMS_THRESHOLD = 0.8     # default: 0.7
+    STEPS_PER_EPOCH = 1500      # 1000
+    VALIDATION_STEPS = 300      # 200
 
 
 # Execute Configuration
@@ -86,6 +87,37 @@ label_names = [x['name'] for x in label_descriptions['categories']]
 
 # Read train.csv for segmentation
 segment_df = pd.read_csv(DATA_DIR/"train.csv")
+
+# Delete small categories
+segment_df = segment_df[segment_df['ClassId'] != '45']
+segment_df = segment_df[segment_df['ClassId'] != '44']
+segment_df = segment_df[segment_df['ClassId'] != '43']
+segment_df = segment_df[segment_df['ClassId'] != '42']
+segment_df = segment_df[segment_df['ClassId'] != '41']
+segment_df = segment_df[segment_df['ClassId'] != '40']
+segment_df = segment_df[segment_df['ClassId'] != '39']
+segment_df = segment_df[segment_df['ClassId'] != '38']
+segment_df = segment_df[segment_df['ClassId'] != '37']
+segment_df = segment_df[segment_df['ClassId'] != '36']
+segment_df = segment_df[segment_df['ClassId'] != '35']
+segment_df = segment_df[segment_df['ClassId'] != '34']
+segment_df = segment_df[segment_df['ClassId'] != '33']
+segment_df = segment_df[segment_df['ClassId'] != '32']
+segment_df = segment_df[segment_df['ClassId'] != '31']
+segment_df = segment_df[segment_df['ClassId'] != '30']
+segment_df = segment_df[segment_df['ClassId'] != '29']
+segment_df = segment_df[segment_df['ClassId'] != '28']
+segment_df = segment_df[segment_df['ClassId'] != '27']
+segment_df = segment_df[segment_df['ClassId'] != '26']
+segment_df = segment_df[segment_df['ClassId'] != '25']
+segment_df = segment_df[segment_df['ClassId'] != '24']
+segment_df = segment_df[segment_df['ClassId'] != '19']
+segment_df = segment_df[segment_df['ClassId'] != '18']
+segment_df = segment_df[segment_df['ClassId'] != '17']
+segment_df = segment_df[segment_df['ClassId'] != '16']
+print(segment_df['ClassId'])
+
+# segment_df = segment_df[segment_df['ImageId'] == '361cc7654672860b1b7c85fe8e92b38a.jpg']
 
 # Find Multilabel to percent
 multilabel_percent = len(segment_df[segment_df['ClassId'].str.contains('_')])/len(segment_df)*100
@@ -168,12 +200,11 @@ for i in range(loop):
 
     image = dataset.load_image(image_id)
     mask, class_ids = dataset.load_mask(image_id)
-    visualize.display_top_masks(image, mask, class_ids, dataset.class_names, limit=4)
-
+    visualize.display_top_masks(image, mask, class_ids, dataset.class_names, limit=10)
 
 # Determine your fold
+N_FOLDS = 10
 FOLD = 0
-N_FOLDS = 5
 
 kf = KFold(n_splits=N_FOLDS, random_state=42, shuffle=True)
 splits = kf.split(image_df)  # ideally, this should be multilabel stratification
@@ -194,9 +225,8 @@ valid_dataset = FashionDataset(valid_df)
 valid_dataset.prepare()
 
 train_segments = np.concatenate(train_df['CategoryId'].values).astype(int)
-# print("Total train images: ", len(train_df))
-# print("Total train segments: ", len(train_segments))
-
+print("Total train images: ", len(train_df))
+print("Total train segments: ", len(train_segments))
 
 plt.figure(figsize=(12, 3))
 values, counts = np.unique(train_segments, return_counts=True)
@@ -205,8 +235,8 @@ plt.xticks(values, label_names, rotation='vertical')
 # plt.show()
 
 valid_segments = np.concatenate(valid_df['CategoryId'].values).astype(int)
-# print("Total train images: ", len(valid_df))
-# print("Total validation segments: ", len(valid_segments))
+print("Total train images: ", len(valid_df))
+print("Total validation segments: ", len(valid_segments))
 
 plt.figure(figsize=(12, 3))
 values, counts = np.unique(valid_segments, return_counts=True)
@@ -254,6 +284,8 @@ for k in new_history: history[k] = history[k] + new_history[k]
 end = time.time()
 print(end-start)
 ############################################
+
+############################################
 start = time.time()
 model.train(train_dataset, valid_dataset,
             learning_rate=LR/5,
@@ -265,25 +297,6 @@ new_history = model.keras_model.history.history
 for k in new_history: history[k] = history[k] + new_history[k]
 end = time.time()
 print(end-start)
-
-############################################
-'''
-epochs = range(EPOCHS[-1])
-plt.figure(figsize=(18, 6))
-plt.subplot(131)
-plt.plot(epochs, history['loss'], label="train loss")
-plt.plot(epochs, history['val_loss'], label="valid loss")
-plt.legend()
-plt.subplot(132)
-plt.plot(epochs, history['mrcnn_class_loss'], label="train class loss")
-plt.plot(epochs, history['val_mrcnn_class_loss'], label="valid class loss")
-plt.legend()
-plt.subplot(133)
-plt.plot(epochs, history['mrcnn_mask_loss'], label="train mask loss")
-plt.plot(epochs, history['val_mrcnn_mask_loss'], label="valid mask loss")
-plt.legend()
-# plt.show()
-'''
 ############################################
 
 best_epoch = np.argmin(history["val_loss"]) + 1
