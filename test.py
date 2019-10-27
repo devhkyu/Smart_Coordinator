@@ -69,7 +69,7 @@ class FashionConfig(Config):
 
 # Execute Configuration
 config = FashionConfig()
-config.display()
+# config.display()
 
 
 # Load Label Descriptions to label_descriptions
@@ -97,16 +97,16 @@ def resize_url_image(img):
 # Read url_data to dataFrame choose item you want
 
 # Read CAMSCON.csv for URL Image
-url_df = pd.read_csv('url_data/CAMSCON.csv')
-url_df.columns = ['url']
+# url_df = pd.read_csv('url_data/CAMSCON.csv')
+# url_df.columns = ['url']
 
 # Read FashionGio47.csv for URL Image
 # url_df = pd.read_csv('url_data/FashionGio47.csv')
 # url_df.columns = ['url', 'title', 'text']
 
 # Read FashionWebzineSnpp(Image).csv for URL Image
-# url_df = pd.read_csv('url_data/FashionWebzineSnpp(Image).csv')
-# url_df.columns = ['url']
+url_df = pd.read_csv('url_data/FashionWebzineSnpp(Image).csv')
+url_df.columns = ['url']
 
 # Read Musinsa.csv for URL Image
 # url_df = pd.read_csv('url_data/Musinsa.csv')
@@ -169,9 +169,19 @@ def refine_masks(masks, rois):
 
 res = []
 
+
+# Python code to remove duplicate elements
+def remove(duplicate):
+    final_list = []
+    for num in duplicate:
+        if num not in final_list:
+            final_list.append(num)
+    return final_list
+
+
 # URL Image Prediction
-for i in range(2):
-    print("\nProcess [%d/%d]" % (i, url_df.__len__()))
+for i in range(url_df.__len__()):
+    print("\nProcess [%d/%d]" % (i, url_df.__len__()-1))
     url = url_df['url'][i]
     img = np.array(Image.open(urlopen(url)))
     result = model.detect([resize_url_image(img)], verbose=1)
@@ -189,19 +199,20 @@ for i in range(2):
         masks, rois = refine_masks(masks, rois)
     else:
         masks, rois = r['masks'], r['rois']
-
+    '''
     visualize.display_instances(img, rois, masks, r['class_ids'],
                                 ['bg'] + label_names, r['scores'],
                                 title=url, figsize=(12, 12))
-    res.append({
-        "rois": r['rois'],
-        "class_ids": r['class_ids'],
-        "scores": r['scores'],
-        "masks": r['masks'],
-    })
+    '''
+    # Select class_ids and remove duplicated items
+    r = remove(r['class_ids'])
+    res.append({"class_ids": r})
 
-# predict = pd.DataFrame(res)
-# predict = predict.drop(columns='rois')
-# predict = predict.drop(columns='masks')
-# print(predict)
-# predict.to_csv("pred_camscon.csv", mode='w')
+# Splitting for multi-level dataframe
+predict = pd.DataFrame(res)
+df = pd.DataFrame(predict['class_ids'].values.tolist(), index=predict.index).stack()
+df = df.astype(int)
+print(df)
+
+# Save as csv
+df.to_csv("pred_fashionwebzine.csv", mode='w')
