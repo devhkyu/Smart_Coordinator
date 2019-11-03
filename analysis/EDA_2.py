@@ -11,11 +11,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
 import sys
+import os
 import io
 import random
 warnings.filterwarnings(action='ignore')
 
 # Initialize DATA_DIR, ROOT_DIR
+os.chdir('..')
 DATA_DIR = Path('')
 ROOT_DIR = Path('')
 sys.path.append(ROOT_DIR/'Mask_RCNN')
