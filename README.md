@@ -16,7 +16,10 @@
 
 # Module Version
 - tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
-- keras (2.3.0)
+- keras (2.3.0) - If you want to run server(main.py), you should install keras (2.2.5)
+<code>
+        pip install keras==2.2.5
+</code>
 
 # Errors
 - AttributeError: 'Model' object has no attribute 'metrics_tensors'
