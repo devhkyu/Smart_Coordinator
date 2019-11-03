@@ -53,7 +53,7 @@ class FashionConfig(Config):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 4
 
-    BACKBONE = 'resnet50'
+    BACKBONE = 'resnet101'
 
     IMAGE_MIN_DIM = IMAGE_SIZE
     IMAGE_MAX_DIM = IMAGE_SIZE
@@ -61,7 +61,7 @@ class FashionConfig(Config):
 
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
     # DETECTION_NMS_THRESHOLD = 0.0
-    DETECTION_MIN_CONFIDENCE = 0.85
+    DETECTION_MIN_CONFIDENCE = 0.65
 
     STEPS_PER_EPOCH = 1  # 1000
     VALIDATION_STEPS = 1  # 200
@@ -97,16 +97,16 @@ def resize_url_image(img):
 # Read url_data to dataFrame choose item you want
 
 # Read CAMSCON.csv for URL Image
-# url_df = pd.read_csv('url_data/CAMSCON.csv')
-# url_df.columns = ['url']
+url_df = pd.read_csv('url_data/CAMSCON.csv')
+url_df.columns = ['url']
 
 # Read FashionGio47.csv for URL Image
 # url_df = pd.read_csv('url_data/FashionGio47.csv')
 # url_df.columns = ['url', 'title', 'text']
 
 # Read FashionWebzineSnpp(Image).csv for URL Image
-url_df = pd.read_csv('url_data/FashionWebzineSnpp(Image).csv')
-url_df.columns = ['url']
+# url_df = pd.read_csv('url_data/FashionWebzineSnpp(Image).csv')
+# url_df.columns = ['url']
 
 # Read Musinsa.csv for URL Image
 # url_df = pd.read_csv('url_data/Musinsa.csv')
@@ -119,7 +119,8 @@ url_df.columns = ['url']
 
 # Select Weight File manually
 # model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
-model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
+# model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0001.h5'
 
 
 class InferenceConfig(FashionConfig):
@@ -191,7 +192,6 @@ for i in range(url_df.__len__()):
         for m in range(r['masks'].shape[-1]):
             masks[:, :, m] = cv2.resize(r['masks'][:, :, m].astype('uint8'),
                                         (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
-
         y_scale = img.shape[0] / IMAGE_SIZE
         x_scale = img.shape[1] / IMAGE_SIZE
         rois = (r['rois'] * [y_scale, x_scale, y_scale, x_scale]).astype(int)
@@ -199,11 +199,11 @@ for i in range(url_df.__len__()):
         masks, rois = refine_masks(masks, rois)
     else:
         masks, rois = r['masks'], r['rois']
-    '''
+
     visualize.display_instances(img, rois, masks, r['class_ids'],
                                 ['bg'] + label_names, r['scores'],
                                 title=url, figsize=(12, 12))
-    '''
+
     # Select class_ids and remove duplicated items
     r = remove(r['class_ids'])
     res.append({"class_ids": r})
@@ -215,4 +215,4 @@ df = df.astype(int)
 print(df)
 
 # Save as csv
-df.to_csv("pred_fashionwebzine.csv", mode='w')
+# df.to_csv("pred_fashionwebzine.csv", mode='w')
