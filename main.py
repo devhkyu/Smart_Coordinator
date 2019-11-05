@@ -12,7 +12,7 @@ import numpy as np
 # Initialize NUM_CATS, IMAGE_SIZE, model_path
 NUM_CATS = 46
 IMAGE_SIZE = 512
-model_path = 'fashion20191028T0500/mask_rcnn_fashion_0001.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0003.h5'
 ROOT_DIR = Path('/Mask_RCNN')
 
 

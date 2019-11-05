@@ -29,7 +29,6 @@ from Mask_RCNN.mrcnn import visualize
 import Mask_RCNN.mrcnn.model as modellib
 import sys
 import json
-import random
 import cv2
 import numpy as np
 import pandas as pd
@@ -60,11 +59,7 @@ class FashionConfig(Config):
     IMAGE_RESIZE_MODE = 'none'
 
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
-    # DETECTION_NMS_THRESHOLD = 0.0
-    DETECTION_MIN_CONFIDENCE = 0.65
-
-    STEPS_PER_EPOCH = 1  # 1000
-    VALIDATION_STEPS = 1  # 200
+    DETECTION_MIN_CONFIDENCE = 0.00
 
 
 # Execute Configuration
@@ -120,7 +115,7 @@ url_df.columns = ['url']
 # Select Weight File manually
 # model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
 # model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
-model_path = 'fashion20191028T0500/mask_rcnn_fashion_0001.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0003.h5'
 
 
 class InferenceConfig(FashionConfig):
@@ -168,21 +163,25 @@ def refine_masks(masks, rois):
     return masks, rois
 
 
-res = []
+final = []
+duplicated = []
 
 
 # Python code to remove duplicate elements
 def remove(duplicate):
     final_list = []
+    duplicate_list = []
     for num in duplicate:
         if num not in final_list:
             final_list.append(num)
-    return final_list
+        else:
+            duplicate_list.append(num)
+    return final_list, duplicate_list
 
 
 # URL Image Prediction
 for i in range(url_df.__len__()):
-    print("\nProcess [%d/%d]" % (i, url_df.__len__()-1))
+    print("\nProcess [%d/%d]" % (i+1, url_df.__len__()))
     url = url_df['url'][i]
     img = np.array(Image.open(urlopen(url)))
     result = model.detect([resize_url_image(img)], verbose=1)
@@ -205,14 +204,31 @@ for i in range(url_df.__len__()):
                                 title=url, figsize=(12, 12))
 
     # Select class_ids and remove duplicated items
-    r = remove(r['class_ids'])
-    res.append({"class_ids": r})
+    r, s = remove(r['class_ids'])
+    final.append({"class_ids": r})
+    duplicated.append({"class_ids": s})
+
 
 # Splitting for multi-level dataframe
-predict = pd.DataFrame(res)
+predict = pd.DataFrame(final)
 df = pd.DataFrame(predict['class_ids'].values.tolist(), index=predict.index).stack()
 df = df.astype(int)
-print(df)
+value_counts = df.value_counts()
+df_count = value_counts.rename_axis('class').reset_index(name='count')
+
+fail = pd.DataFrame(duplicated)
+df_fail = pd.DataFrame(fail['class_ids'].values.tolist(), index=fail.index).stack()
+df_fail = df_fail.astype(int)
+fail_value_counts = df_fail.value_counts()
+df_fail_count = fail_value_counts.rename_axis('class').reset_index(name='count')
+
+# Result
+print('\n==========================================')
+print("Threshold: ", inference_config.DETECTION_MIN_CONFIDENCE)
+print("Final: ", df_count)
+print("Duplicated: ", df_fail_count)
+print('==========================================')
+
 
 # Save as csv
-# df.to_csv("pred_fashionwebzine.csv", mode='w')
+# df.to_csv("pred_camscon.csv", header=False)

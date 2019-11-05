@@ -7,7 +7,7 @@ import json
 
 # Initialize
 DATA_DIR = Path('')
-csv_name = 'pred_fashionwebzine.csv'
+csv_name = 'pred_camscon.csv'
 
 # Load Label Descriptions to label_descriptions
 with open(DATA_DIR / "label_descriptions.json") as f:
