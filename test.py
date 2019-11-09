@@ -59,7 +59,7 @@ class FashionConfig(Config):
     IMAGE_RESIZE_MODE = 'none'
 
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
-    DETECTION_MIN_CONFIDENCE = 0.00
+    DETECTION_MIN_CONFIDENCE = 0.70
 
 
 # Execute Configuration
@@ -115,7 +115,7 @@ url_df.columns = ['url']
 # Select Weight File manually
 # model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
 # model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
-model_path = 'fashion20191028T0500/mask_rcnn_fashion_0003.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0005.h5'
 
 
 class InferenceConfig(FashionConfig):
