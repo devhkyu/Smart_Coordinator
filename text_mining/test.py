@@ -7,7 +7,7 @@ nlp = Okt()
 doc = konlpy.corpus.kolaw.open('constitution.txt').read()
 nouns = nlp.nouns(doc)
 
-print(nouns)
+# print(nouns)
 
 count = Counter(nouns)
 
@@ -23,18 +23,5 @@ for n, c in count.most_common(100):
 for tag in tag_count:
     print("{:<14}".format(tag['tag']), end='\t')
     print("{}".format(tag['count']))
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

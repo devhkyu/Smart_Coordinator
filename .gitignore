@@ -5,10 +5,13 @@ fashion20190930T0958/
 fashion20191028T0500/
 Mask_RCNN/
 url_data/
+FashionImageDataset/
+SimpleImageDataset/
 
 # ignore files
 *.h5
 *.csv
+*.jpg
 
 # User-specific stuff:
 .idea/workspace.xml

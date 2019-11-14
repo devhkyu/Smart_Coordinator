@@ -33,6 +33,7 @@ import cv2
 import numpy as np
 import pandas as pd
 import itertools
+import imageio
 
 # Initialize DATA_DIR, ROOT_DIR
 DATA_DIR = Path('')
@@ -75,6 +76,7 @@ with open(DATA_DIR / "label_descriptions.json") as f:
 label_names = [x['name'] for x in label_descriptions['categories']]
 
 
+
 # Resize Image from image_path
 def resize_image(image_path):
     img = cv2.imread(image_path)
@@ -107,15 +109,23 @@ url_df.columns = ['url']
 # url_df = pd.read_csv('url_data/Musinsa.csv')
 # url_df.columns = ['url', 'text']
 
+# Read ootd.csv for URL Image
+# url_df = pd.read_csv('url_data/ootd.csv')
+# url_df.columns = ['url']
+
+# Read 옷스타그램.csv for URL Image
+# url_df = pd.read_csv('url_data/옷스타그램.csv')
+# url_df.columns = ['url']
+
 # Read specific url
-# url = 'http://www.fashiongio.com/PEG/15415578699231.jpg'
+# url = 'https://scontent-icn1-1.cdninstagram.com/vp/67b0722b46a305f5c75ed73fa0772270/5E61ADD9/t51.2885-15/sh0.08/e35/s640x640/73041099_140168030724145_3330946733277870498_n.jpg?_nc_ht=scontent-icn1-1.cdninstagram.com&_nc_cat=101'
 # url_df = pd.DataFrame({"url": [url]})
 #############################################
 
 # Select Weight File manually
 # model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
 # model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
-model_path = 'fashion20191028T0500/mask_rcnn_fashion_0005.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0006.h5'
 
 
 class InferenceConfig(FashionConfig):
@@ -162,9 +172,12 @@ def refine_masks(masks, rois):
             rois[m, :] = [y1, x1, y2, x2]
     return masks, rois
 
-
+'''
 final = []
 duplicated = []
+'''
+data = []
+url_data = []
 
 
 # Python code to remove duplicate elements
@@ -183,8 +196,11 @@ def remove(duplicate):
 for i in range(url_df.__len__()):
     print("\nProcess [%d/%d]" % (i+1, url_df.__len__()))
     url = url_df['url'][i]
-    img = np.array(Image.open(urlopen(url)))
-    result = model.detect([resize_url_image(img)], verbose=1)
+    img = cv2.imread('camera1.jpg')
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    result = model.detect([resize_image('camera1.jpg')], verbose=1)
+    # img = np.array(Image.open(urlopen(url)))
+    # result = model.detect([resize_url_image(img)], verbose=1)
     r = result[0]
     if r['masks'].size > 0:
         masks = np.zeros((img.shape[0], img.shape[1], r['masks'].shape[-1]), dtype=np.uint8)
@@ -202,13 +218,49 @@ for i in range(url_df.__len__()):
     visualize.display_instances(img, rois, masks, r['class_ids'],
                                 ['bg'] + label_names, r['scores'],
                                 title=url, figsize=(12, 12))
+    
+    visualize.display_top_masks(img, masks, r['class_ids'], label_names, limit=8)
 
+
+    '''
     # Select class_ids and remove duplicated items
     r, s = remove(r['class_ids'])
     final.append({"class_ids": r})
     duplicated.append({"class_ids": s})
+    '''
 
+    # Check whether image has both upper and lower or whole
+    upper = 0
+    lower = 0
+    whole = 0
+    for x in r['class_ids']:
+        t = x-1
+        if t<5:
+            upper += 1
+        elif t<9:
+            lower += 1
+        elif t<13:
+            whole += 1
+    if whole>0 or (upper>0 and lower>0):
+        data.append(r)
+        url_data.append(url)
 
+'''
+df_data = pd.DataFrame(data)
+df_final = pd.DataFrame(df_data['class_ids'].values.tolist(), index=df_data.index).stack()
+df_final = df_final.astype(int)
+print(df_final)
+print(df_data['rois'])
+'''
+
+# df_final.to_csv("mask_camscon_1.csv")
+#df_url = pd.DataFrame({'url': url_data})
+#df_result = pd.concat([df_url, df_data], axis=1)
+#df_data = df_data.stack()
+#print(df_data)
+#df_result.to_csv("mask_camscon.csv")
+
+'''
 # Splitting for multi-level dataframe
 predict = pd.DataFrame(final)
 df = pd.DataFrame(predict['class_ids'].values.tolist(), index=predict.index).stack()
@@ -232,3 +284,4 @@ print('==========================================')
 
 # Save as csv
 # df.to_csv("pred_camscon.csv", header=False)
+'''

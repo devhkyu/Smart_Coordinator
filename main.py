@@ -12,7 +12,7 @@ import numpy as np
 # Initialize NUM_CATS, IMAGE_SIZE, model_path
 NUM_CATS = 46
 IMAGE_SIZE = 512
-model_path = 'fashion20191028T0500/mask_rcnn_fashion_0003.h5'
+model_path = 'fashion20191028T0500/mask_rcnn_fashion_0006.h5'
 ROOT_DIR = Path('/Mask_RCNN')
 
 
@@ -117,7 +117,7 @@ def handle_request():
     r = remove(r['class_ids'])
     list_class = []
     for x in range(r.__len__()):
-        list_class.append(label_names[r[x]])
+        list_class.append(label_names[r[x]-1])
     if not r:
         return render_template('index.html', label='No class')
     else:
