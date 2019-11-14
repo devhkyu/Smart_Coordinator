@@ -299,6 +299,24 @@ end = time.time()
 print(end-start)
 ############################################
 
+############################################
+epochs = range(EPOCHS[-1])
+plt.figure(figsize=(18, 6))
+plt.subplot(131)
+plt.plot(epochs, history['loss'], label="train loss")
+plt.plot(epochs, history['val_loss'], label="valid loss")
+plt.legend()
+plt.subplot(132)
+plt.plot(epochs, history['mrcnn_class_loss'], label="train class loss")
+plt.plot(epochs, history['val_mrcnn_class_loss'], label="valid class loss")
+plt.legend()
+plt.subplot(133)
+plt.plot(epochs, history['mrcnn_mask_loss'], label="train mask loss")
+plt.plot(epochs, history['val_mrcnn_mask_loss'], label="valid mask loss")
+plt.legend()
+plt.show()
+############################################
+
 best_epoch = np.argmin(history["val_loss"]) + 1
 print("Best epoch: ", best_epoch)
 print("Valid loss: ", history["val_loss"][best_epoch-1])
