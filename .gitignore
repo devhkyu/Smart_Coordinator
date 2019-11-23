@@ -7,11 +7,14 @@ Mask_RCNN/
 url_data/
 FashionImageDataset/
 SimpleImageDataset/
+Smart_Coordinator_match/lookbook/
 
 # ignore files
 *.h5
 *.csv
 *.jpg
+*.hdf5
+*.npy
 
 # User-specific stuff:
 .idea/workspace.xml
