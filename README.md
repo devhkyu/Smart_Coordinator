@@ -10,10 +10,9 @@
 - https://github.com/matterport/Mask_RCNN
 
 # Weight file
-- fashion20190930T0958 (1.42GB)
-- http://naver.me/x8484YRo
-- mask_rcnn_coco.h5 (245.6MB)
-- http://naver.me/FeJBJRKJ
+- fashion20191028T0500/mask_rcnn_fashion_0006.h5 (256.83Mb)
+- mask_rcnn_coco.h5 (245.6Mb)
+- If you want to download these files, please contact e-mail (fab@kakao.com)
 
 # Module Version
 - tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
