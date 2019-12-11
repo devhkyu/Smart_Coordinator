@@ -1,10 +1,18 @@
-# iMaterialist Fashion 2019 at FGVC6
+# Image Data
+## iMaterialist Fashion 2019 at FGVC6 (Mask R-CNN: Object Detection)
 ![Kaggle3](https://user-images.githubusercontent.com/44195740/70390630-f9713900-1a0f-11ea-8f26-1212a2f18536.jpg)
 - https://www.kaggle.com/c/imaterialist-fashion-2019-FGVC6/data
 - train.csv
 - train.zip
 - test.zip
 - label_descriptions.json (In git, we already have)
+## Image Crawling (CNN: Classification, Similarity)
+- Camscon (https://camscon.kr/)
+- FashionGio (http://www.fashiongio.com/)
+- Sn@pp (http://zine.istyle24.com/)
+- Musinsa (https://www.musinsa.com/)
+- Instagram (http://instagram.com/)
+- Google Image Search (http://google.com/)
 
 # Mask_RCNN
 - https://github.com/matterport/Mask_RCNN
