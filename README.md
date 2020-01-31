@@ -23,8 +23,13 @@
 - If you want to download these files, please contact e-mail (fab@kakao.com)
 
 # Module Version
-- tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
-- keras (2.3.0) - If you want to run server(main.py), you should install keras (2.2.5)
+![python](https://img.shields.io/badge/Python-3.7.3%2B-green.svg)
+![tensorflow](https://img.shields.io/badge/Tensorflow-1.14.0%2B-green.svg)
+![keras](https://img.shields.io/badge/Keras-2.3.0%2B-green.svg)
+![pycharm](https://img.shields.io/badge/Pycharm-2019.2%2B-blue.svg)
+
+- Tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
+- Keras (2.3.0) - If you want to run server(main.py), you should install keras (2.2.5)
 <code>
         pip install keras==2.2.5
 </code>
