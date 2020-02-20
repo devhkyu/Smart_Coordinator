@@ -23,10 +23,12 @@
 - If you want to download these files, please contact e-mail (fab@kakao.com)
 
 # Module Version
+![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)
+![pycharm](https://img.shields.io/badge/Pycharm-2019.2%2B-blue.svg)
 ![python](https://img.shields.io/badge/Python-3.7.3%2B-green.svg)
 ![tensorflow](https://img.shields.io/badge/Tensorflow-1.14.0%2B-green.svg)
 ![keras](https://img.shields.io/badge/Keras-2.3.0%2B-green.svg)
-![pycharm](https://img.shields.io/badge/Pycharm-2019.2%2B-blue.svg)
+![konlpy](https://img.shields.io/badge/Konlpy-0.5.1%2B-green.svg)
 
 - Tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
 - Keras (2.3.0) - If you want to run server(main.py), you should install keras (2.2.5)
