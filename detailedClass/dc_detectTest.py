@@ -70,5 +70,6 @@ for i in range(url_df.__len__()):
     print('Category:', categories[result[0]])
 
 # Result of test
-pred_df = pd.DataFrame(pred_category, columns=['look'])
-print(pred_df['look'].value_counts())
+pred_df = pd.DataFrame(pred_category, columns=['category'])
+print(pred_df)
+print(pred_df['category'].value_counts())
