@@ -32,8 +32,11 @@
 
 - Tensorflow (1.14.0) - If version of tensorflow is the latest, some errors will occur.
 - Keras (2.3.0) - If you want to run server(main.py), you should install keras (2.2.5)
+- Numpy (<1.17) - If you don't want to see FutureWarnings, you should install numpy (<1.17). If not, Numpy version doesn't matter.
 <code>
+        pip install tensorflow==1.14.0
         pip install keras==2.2.5
+        pip install "numpy<1.17"
 </code>
 
 # Errors
