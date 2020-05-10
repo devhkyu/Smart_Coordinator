@@ -35,7 +35,11 @@
 - Numpy (<1.17) - If you don't want to see FutureWarnings, you should install numpy (<1.17). If not, Numpy version doesn't matter.
 <code>
         pip install tensorflow==1.14.0
+</code>
+<code>
         pip install keras==2.2.5
+</code>
+<code>
         pip install "numpy<1.17"
 </code>
 
