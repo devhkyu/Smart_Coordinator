@@ -12,6 +12,9 @@ Smart_Coordinator_match/lookbook/
 *.h5
 *.csv
 *.jpg
+*.jpeg
+*.png
+*.gif
 *.hdf5
 *.npy
 
