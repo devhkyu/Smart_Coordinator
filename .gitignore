@@ -1,12 +1,7 @@
 # ignore directories
-test/
-train/
-fashion20190930T0958/
-fashion20191028T0500/
-url_data/
-FashionImageDataset/
-SimpleImageDataset/
-Smart_Coordinator_match/lookbook/
+data/image/detailer/*
+data/image/mask_rcnn/*
+data/weight/*
 
 # ignore files
 *.h5
@@ -23,6 +18,5 @@ Smart_Coordinator_match/lookbook/
 .idea/modules.xml
 .idea/SCON.iml
 .idea/vcs.xml
-.idea/workspace.xml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/
