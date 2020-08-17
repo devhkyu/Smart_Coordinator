@@ -21,19 +21,19 @@ Gachon University Graduation Project
 """
 
 # Import Modules
-from imgaug import augmenters as iaa
-from module.Mask_RCNN import Config
+from module.Mask_RCNN.mrcnn import config as Config
 from module.Mask_RCNN.mrcnn import utils, visualize
-from pathlib import Path
+from module.Mask_RCNN.mrcnn import model as modellib
 from sklearn.model_selection import KFold
-from module import Mask_RCNN as modellib
+from imgaug import augmenters as iaa
+from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import sys
 import json
 import random
 import cv2
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import time
 import warnings
 
@@ -142,7 +142,6 @@ def resize_image(image_path):
 
 # Fashion Dataset Class: Create class
 class FashionDataset(utils.Dataset):
-
     def __init__(self, df):
         super().__init__(self)
 

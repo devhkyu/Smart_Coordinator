@@ -21,96 +21,64 @@ Gachon University Graduation Project
 """
 
 # Import Modules
-from imgaug import augmenters as iaa
-from module.Mask_RCNN import Config
-from module.Mask_RCNN.mrcnn import utils, visualize
-from pathlib import Path
+from module.Mask_RCNN.mrcnn import config as maskconfig
+from module.Mask_RCNN.mrcnn import model as maskmodel
+from module.Mask_RCNN.mrcnn import utils
 from sklearn.model_selection import KFold
-from module import Mask_RCNN as modellib
-import sys
-import json
-import random
-import cv2
+from imgaug import augmenters as iaa
+from pathlib import Path
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import time
 import warnings
+import json
+import cv2
 
-# Ignore UserWarning - It doesn't work(*)
-warnings.simplefilter('ignore', UserWarning)
+# Ignore Warnings
+warnings.filterwarnings(action='ignore')
 
-# Initialize DATA_DIR, ROOT_DIR
-DATA_DIR = Path('')
-ROOT_DIR = Path('')
-sys.path.append(ROOT_DIR/'Mask_RCNN')
+# Directories
+data_dir = Path('../../../data/image/mask_rcnn')
+save_dir = Path('../../../data/weight')
 
 # Initialize NUM_CATS, IMAGE_SIZE
 NUM_CATS = 46
 IMAGE_SIZE = 512
 
-# Import Pretrained Weight
-COCO_WEIGHTS_PATH = '../../../data/weight/mask_rcnn_coco.h5'
+# Import label_description
+with open(data_dir/"label_descriptions.json") as f:
+    label_descriptions = json.load(f)
+label_names = [x['name'] for x in label_descriptions['categories']]
+
+# Import mask_rcnn_coco
+mrCoco = '../../../data/weight/mask_rcnn_coco.h5'
+
+# Import train.csv for segmentation
+segment = pd.read_csv(data_dir/"train.csv")
+segment['CategoryId'] = segment['ClassId'].str.split('_').str[0]
+
+# Grouping data in dataFrame by Pixels, Height-Width
+image = segment.groupby('ImageId')['EncodedPixels', 'CategoryId']\
+    .agg(lambda x: list(x)).join(segment.groupby('ImageId')['Height', 'Width'].mean())
 
 
-# Setup Configuration
-class FashionConfig(Config):
+# Configuration Class
+class FashionConfig(maskconfig.Config):
     NAME = "fashion"
-    NUM_CLASSES = NUM_CATS + 1  # +1 for the background class
-
+    NUM_CLASSES = NUM_CATS + 1
     GPU_COUNT = 1
     IMAGES_PER_GPU = 4
-
-    BACKBONE = 'resnet101'   # resnet50
-
+    BACKBONE = 'resnet101'
     IMAGE_MIN_DIM = IMAGE_SIZE
     IMAGE_MAX_DIM = IMAGE_SIZE
     IMAGE_RESIZE_MODE = 'none'
-
     RPN_ANCHOR_SCALES = (16, 32, 64, 128, 256)
-    STEPS_PER_EPOCH = 1      # 1000
-    VALIDATION_STEPS = 1      # 200
+    RPN_NMS_THRESHOLD = 0.8
+    STEPS_PER_EPOCH = 1500
+    VALIDATION_STEPS = 300
 
 
-# Execute Configuration
-config = FashionConfig()
-# config.display()
-
-# Load Label Descriptions to label_descriptions
-with open(DATA_DIR/"label_descriptions.json") as f:
-    label_descriptions = json.load(f)
-
-# From label_descriptions['categories'] to label_names
-label_names = [x['name'] for x in label_descriptions['categories']]
-
-# Read train.csv for segmentation
-segment_df = pd.read_csv(DATA_DIR/"train.csv")
-
-# Find Multilabel to percent
-multilabel_percent = len(segment_df[segment_df['ClassId'].str.contains('_')])/len(segment_df)*100
-# print(f"Segments that have attributes: {multilabel_percent:.2f}%")
-
-segment_df['CategoryId'] = segment_df['ClassId'].str.split('_').str[0]
-# print("Total segments: ", len(segment_df))
-
-# Groupping data in df by Pixels, Height-Width
-image_df = segment_df.groupby('ImageId')['EncodedPixels', 'CategoryId'].agg(lambda x: list(x))
-size_df = segment_df.groupby('ImageId')['Height', 'Width'].mean()
-image_df = image_df.join(size_df, on='ImageId')
-# print("Total images: ", len(image_df))
-
-
-# Resize Image from image_path
-def resize_image(image_path):
-    img = cv2.imread(image_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
-    return img
-
-
-# Fashion Dataset Class: Create class
+# Fashion Dataset Class
 class FashionDataset(utils.Dataset):
-
     def __init__(self, df):
         super().__init__(self)
 
@@ -122,7 +90,7 @@ class FashionDataset(utils.Dataset):
         for i, row in df.iterrows():
             self.add_image("fashion",
                            image_id=row.name,
-                           path=str(DATA_DIR / 'train' / row.name),
+                           path=str(data_dir / 'train' / row.name),
                            labels=row['CategoryId'],
                            annotations=row['EncodedPixels'],
                            height=row['Height'], width=row['Width'])
@@ -156,134 +124,66 @@ class FashionDataset(utils.Dataset):
         return mask, np.array(labels)
 
 
-# Create dataset for class
-dataset = FashionDataset(image_df)
+# Prepare dataset, config
+dataset = FashionDataset(image)
 dataset.prepare()
+config = FashionConfig()
 
-loop = 0
-for i in range(loop):
-    image_id = random.choice(dataset.image_ids)
-    print(dataset.image_reference(image_id))
-
-    image = dataset.load_image(image_id)
-    mask, class_ids = dataset.load_mask(image_id)
-    visualize.display_top_masks(image, mask, class_ids, dataset.class_names, limit=4)
-
-
-# Determine your fold
-FOLD = 0
-N_FOLDS = 5
-
-kf = KFold(n_splits=N_FOLDS, random_state=42, shuffle=True)
-splits = kf.split(image_df)  # ideally, this should be multilabel stratification
+# Functions
+def resize_image(image_path):
+    img = cv2.imread(image_path)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.resize(img, (IMAGE_SIZE, IMAGE_SIZE), interpolation=cv2.INTER_AREA)
+    return img
+def get_fold(fold, splits):
+    for i, (train_idx, valid_idx) in enumerate(splits):
+        if i == fold:
+            return image.iloc[train_idx], image.iloc[valid_idx]
 
 
-def get_fold():
-    for i, (train_index, valid_index) in enumerate(splits):
-        if i == FOLD:
-            return image_df.iloc[train_index], image_df.iloc[valid_index]
+# k-Fold Cross Validation
+k = 10
+f = 0
+kf = KFold(n_splits=k, random_state=42, shuffle=True)
+s = kf.split(image)
+train, valid = get_fold(f, s)
 
-
-train_df, valid_df = get_fold()
-
-# DATADIR\train\*
-train_dataset = FashionDataset(train_df)
+# Dataset
+train_dataset = FashionDataset(train)
 train_dataset.prepare()
-valid_dataset = FashionDataset(valid_df)
+valid_dataset = FashionDataset(valid)
 valid_dataset.prepare()
 
-train_segments = np.concatenate(train_df['CategoryId'].values).astype(int)
-# print("Total train images: ", len(train_df))
-# print("Total train segments: ", len(train_segments))
+# Load Model
+model = maskmodel.MaskRCNN(mode='training', config=config, model_dir=save_dir)
+model.load_weights(mrCoco, by_name=True, exclude=['mrcnn_class_logits', 'mrcnn_bbox_fc', 'mrcnn_bbox', 'mrcnn_mask'])
+augmentation = iaa.Sequential([iaa.Fliplr(0.5)])
 
-
-plt.figure(figsize=(12, 3))
-values, counts = np.unique(train_segments, return_counts=True)
-plt.bar(values, counts)
-plt.xticks(values, label_names, rotation='vertical')
-# plt.show()
-
-valid_segments = np.concatenate(valid_df['CategoryId'].values).astype(int)
-# print("Total train images: ", len(valid_df))
-# print("Total validation segments: ", len(valid_segments))
-
-plt.figure(figsize=(12, 3))
-values, counts = np.unique(valid_segments, return_counts=True)
-plt.bar(values, counts)
-plt.xticks(values, label_names, rotation='vertical')
-# plt.show()
-
-# Train
-# Note that any hyperparameters here, such as LR, may still not be optimal
+# Training Parameters
 LR = 1e-4
 EPOCHS = [2, 6, 8]
 
-model = modellib.MaskRCNN(mode='training', config=config, model_dir=ROOT_DIR)
-
-model.load_weights(COCO_WEIGHTS_PATH, by_name=True, exclude=[
-    'mrcnn_class_logits', 'mrcnn_bbox_fc', 'mrcnn_bbox', 'mrcnn_mask'])
-
-augmentation = iaa.Sequential([
-    iaa.Fliplr(0.5)  # only horizontal flip here
-])
-
-############################################
-start = time.time()
+# Training
 model.train(train_dataset, valid_dataset,
-            learning_rate=LR*2,
-            epochs=EPOCHS[0],
-            layers='heads',
-            augmentation=None)
-
+            learning_rate=LR*2, epochs=EPOCHS[0],
+            layers='heads', augmentation=None)
 history = model.keras_model.history.history
-end = time.time()
-print('Duration:', end-start, 'seconds\n')
-############################################
 
-############################################
-start = time.time()
 model.train(train_dataset, valid_dataset,
-            learning_rate=LR,
-            epochs=EPOCHS[1],
-            layers='all',
-            augmentation=augmentation)
+            learning_rate=LR, epochs=EPOCHS[1],
+            layers='all', augmentation=augmentation)
 
 new_history = model.keras_model.history.history
-for k in new_history: history[k] = history[k] + new_history[k]
-end = time.time()
-print(end-start)
-############################################
-start = time.time()
+for k in new_history:
+    history[k] = history[k] + new_history[k]
+
 model.train(train_dataset, valid_dataset,
-            learning_rate=LR/5,
-            epochs=EPOCHS[2],
-            layers='all',
-            augmentation=augmentation)
+            learning_rate=LR/5, epochs=EPOCHS[2],
+            layers='all', augmentation=augmentation)
 
 new_history = model.keras_model.history.history
-for k in new_history: history[k] = history[k] + new_history[k]
-end = time.time()
-print(end-start)
-
-############################################
-'''
-epochs = range(EPOCHS[-1])
-plt.figure(figsize=(18, 6))
-plt.subplot(131)
-plt.plot(epochs, history['loss'], label="train loss")
-plt.plot(epochs, history['val_loss'], label="valid loss")
-plt.legend()
-plt.subplot(132)
-plt.plot(epochs, history['mrcnn_class_loss'], label="train class loss")
-plt.plot(epochs, history['val_mrcnn_class_loss'], label="valid class loss")
-plt.legend()
-plt.subplot(133)
-plt.plot(epochs, history['mrcnn_mask_loss'], label="train mask loss")
-plt.plot(epochs, history['val_mrcnn_mask_loss'], label="valid mask loss")
-plt.legend()
-# plt.show()
-'''
-############################################
+for k in new_history:
+    history[k] = history[k] + new_history[k]
 
 best_epoch = np.argmin(history["val_loss"]) + 1
 print("Best epoch: ", best_epoch)
