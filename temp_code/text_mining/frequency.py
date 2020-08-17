@@ -20,7 +20,7 @@ def tf_idf(document):
 
 nlp = Okt()
 
-musinsa_file = pd.read_csv("musinsa.csv")
+musinsa_file = pd.read_csv("Musinsa.csv")
 gio_file = pd.read_csv("FashionGio47.csv")
 snapp_file = pd.read_csv("FashionWebzineSnpp(text).csv")
 

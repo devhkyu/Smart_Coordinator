@@ -10,8 +10,8 @@ import numpy as np
 # Initialize NUM_CATS, IMAGE_SIZE, model_path
 NUM_CATS = 46
 IMAGE_SIZE = 512
-model_path = 'data/weight/mask_rcnn_fashion_0006.h5'
-ROOT_DIR = Path('module/Mask_RCNN')
+model_path = '../data/weight/mask_rcnn_fashion_0006.h5'
+ROOT_DIR = Path('../module/Mask_RCNN')
 
 
 # Setup Configuration
@@ -41,7 +41,7 @@ def index():
 
 
 # Load Label Descriptions to label_descriptions
-with open("label_descriptions.json") as f:
+with open("../data/image/mask_rcnn/label_descriptions.json") as f:
     label_descriptions = json.load(f)
 
 # From label_descriptions['categories'] to label_names

@@ -56,7 +56,7 @@ def json2df(data):
 
 pd.set_option("display.max_rows", 101)
 plt.rcParams["font.size"] = 15
-os.chdir('..')
+os.chdir('../..')
 train_df = pd.read_csv("train.csv")
 with open("label_descriptions.json") as f:
     label_description = json.load(f)

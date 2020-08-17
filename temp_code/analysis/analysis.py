@@ -13,7 +13,7 @@ import os
 import json
 
 # Set directory path
-os.chdir('..')
+os.chdir('../..')
 BASE_DIR = Path('')
 IMAGES_TRAIN_DIR = f"{BASE_DIR}/train"
 IMAGES_TEST_DIR = f"{BASE_DIR}/test"
