@@ -1,7 +1,7 @@
 # Import Modules
-from module.Mask_RCNN import Config
+from module.Mask_RCNN.mrcnn import config as maskconfig
+from module.Mask_RCNN.mrcnn import model as maskmodel
 from module.Mask_RCNN.mrcnn import visualize
-from module import Mask_RCNN as modellib
 import tensorflow as tf
 import numpy as np
 import warnings
@@ -34,7 +34,7 @@ label_names = [x['name'] for x in label_descriptions['categories']]
 
 
 # Setup Configuration
-class InferenceConfig(Config):
+class InferenceConfig(maskconfig):
     NAME = "fashion"
     NUM_CLASSES = NUM_CATS + 1  # +1 for the background class
     GPU_COUNT = 1
@@ -53,7 +53,7 @@ class InferenceConfig(Config):
 inference_config = InferenceConfig()
 
 # Load Weight File
-model = modellib.MaskRCNN(mode='inference', config=inference_config, model_dir=MASK_DIR)
+model = maskmodel.MaskRCNN(mode='inference', config=inference_config, model_dir=MASK_DIR)
 model.load_weights(MODEL_DIR, by_name=True)
 
 
