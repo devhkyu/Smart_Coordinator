@@ -1,7 +1,7 @@
 # Import Modules
-from Mask_RCNN.mrcnn.config import Config
+from module.Mask_RCNN.mrcnn import model as modellib
+from module.Mask_RCNN.mrcnn.config import Config
 from PIL import Image
-import Mask_RCNN.mrcnn.model as modellib
 import tensorflow as tf
 import numpy as np
 import warnings
@@ -56,9 +56,9 @@ class Model:
     def __init__(self, img_size=None, threshold=None, gpu_count=None, images_per_gpu=None):
         ignore_warnings()
         # Configuration
-        self.MODEL_DIR = "Source/mask_rcnn_fashion_0006.h5"
-        self.LABEL_DIR = "Source/label_descriptions.json"
-        self.MASK_DIR = "Mask_RCNN"
+        self.MODEL_DIR = "../../../data/weight/mask_rcnn_fashion_0006.h5"
+        self.LABEL_DIR = "../../../data/image/mask_rcnn/label_descriptions.json"
+        self.MASK_DIR = "../../../module/Mask_RCNN"
         self.NUM_CATS = 46
         if img_size is None:
             self.IMAGE_SIZE = 512
@@ -131,16 +131,19 @@ class Model:
                 masked_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('upper')
+                score.append(r['scores'][i])
                 upper += 1
             elif category < 9:
                 masked_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('lower')
+                score.append(r['scores'][i])
                 lower += 1
             elif category < 13:
                 masked_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('whole')
+                score.append(r['scores'][i])
                 whole += 1
             i = i + 1
         if (upper is 1) and (lower is 1):
