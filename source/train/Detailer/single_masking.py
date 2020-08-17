@@ -16,9 +16,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 warnings.filterwarnings(action='ignore')
 
 # Initialize Directories
-MODEL_DIR = "../../data/weight/mask_rcnn_fashion_0006.h5"
-LABEL_DIR = "../../data/image/mask_rcnn/label_descriptions.json"
-MASK_DIR = "../../module/Mask_RCNN"
+MODEL_DIR = "../../../data/weight/mask_rcnn_fashion_0006.h5"
+LABEL_DIR = "../../../data/image/mask_rcnn/label_descriptions.json"
+MASK_DIR = "../../../module/Mask_RCNN"
 IMG_DIR = "test1.jpg"
 
 # Initialize NUM_CATS, IMAGE_SIZE

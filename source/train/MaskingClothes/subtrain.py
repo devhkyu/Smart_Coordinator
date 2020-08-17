@@ -50,7 +50,7 @@ NUM_CATS = 46
 IMAGE_SIZE = 512
 
 # Import Pretrained Weight
-COCO_WEIGHTS_PATH = '../data/weight/mask_rcnn_coco.h5'
+COCO_WEIGHTS_PATH = '../../../data/weight/mask_rcnn_coco.h5'
 
 
 # Setup Configuration

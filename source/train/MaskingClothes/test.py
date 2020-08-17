@@ -122,7 +122,7 @@ url_df.columns = ['url']
 # Select Weight File manually
 # model_path = 'fashion20191014T0052/mask_rcnn_fashion_0004.h5'
 # model_path = 'fashion20190930T0958/mask_rcnn_fashion_0007.h5'
-model_path = '../data/weight/mask_rcnn_fashion_0006.h5'
+model_path = '../../../data/weight/mask_rcnn_fashion_0006.h5'
 
 
 class InferenceConfig(FashionConfig):
