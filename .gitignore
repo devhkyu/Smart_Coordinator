@@ -12,6 +12,7 @@ data/weight/*
 *.gif
 *.hdf5
 *.npy
+*.exe
 
 # User-specific stuff:
 .idea/workspace.xml
