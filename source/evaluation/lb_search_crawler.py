@@ -7,7 +7,7 @@ import time
 
 # Input Link
 link = 'https://lookbook.nu/search?q='
-tag = 'street'
+tag = 'date'
 link = link + tag
 
 # Load webdriver
