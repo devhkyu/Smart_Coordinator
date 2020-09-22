@@ -56,9 +56,9 @@ class Model:
     def __init__(self, img_size=None, threshold=None, gpu_count=None, images_per_gpu=None):
         ignore_warnings()
         # Configuration
-        self.MODEL_DIR = "../../../data/weight/mask_rcnn_fashion_0006.h5"
-        self.LABEL_DIR = "../../../data/image/mask_rcnn/label_descriptions.json"
-        self.MASK_DIR = "../../../module/Mask_RCNN"
+        self.MODEL_DIR = os.path.abspath("../../data/weight/mask_rcnn_fashion_0006.h5")
+        self.LABEL_DIR = os.path.abspath("../../data/image/mask_rcnn/label_descriptions.json")
+        self.MASK_DIR = os.path.abspath("../../module/Mask_RCNN")
         self.NUM_CATS = 46
         if img_size is None:
             self.IMAGE_SIZE = 512
@@ -118,6 +118,9 @@ class Model:
         score = []
         masked_image = []
         label_type = []
+        whole_image = []
+        upper_image = []
+        lower_image = []
 
         # Detect whole/upper/lower and Assign complete
         i = 0
@@ -129,18 +132,21 @@ class Model:
             temp = img[rois[i][0]:rois[i][2], rois[i][1]:rois[i][3]]
             if category < 5:
                 masked_image.append(Image.fromarray(temp))
+                upper_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('upper')
                 score.append(r['scores'][i])
                 upper += 1
             elif category < 9:
                 masked_image.append(Image.fromarray(temp))
+                lower_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('lower')
                 score.append(r['scores'][i])
                 lower += 1
             elif category < 13:
                 masked_image.append(Image.fromarray(temp))
+                whole_image.append(Image.fromarray(temp))
                 label.append(self.label_names[category])
                 label_type.append('whole')
                 score.append(r['scores'][i])
@@ -155,5 +161,21 @@ class Model:
         else:
             complete = False
 
+        # Temp Combining Images
+        combine = 0
+        if whole == 1:
+            combine = whole_image[0].resize((512, 512))
+        elif upper == 1 and lower == 1:
+            u = upper_image[0].resize((512, 256))
+            l = lower_image[0].resize((512, 256))
+            combine = Image.new("L", (512, 512))
+            combine.paste(im=u, box=(0, 0))
+            combine.paste(im=l, box=(0, 256))
+
+        from module.Mask_RCNN.mrcnn import visualize
+        visualize.display_instances(img, rois, masks, r['class_ids'],
+                                    ['bg'] + self.label_names, r['scores'],
+                                    title=IMG_DIR, figsize=(12, 12))
+
         # Return values
-        return img, masked_image, label_type, label, score, complete
+        return img, masked_image, label_type, label, score, complete, combine
