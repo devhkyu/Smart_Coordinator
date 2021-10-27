@@ -35,13 +35,13 @@
 - Numpy (<1.17) - If you don't want to see FutureWarnings, you should install numpy (<1.17). If not, Numpy version doesn't matter.
 <code>
         pip install tensorflow==1.14.0
-</code>
+</code><br>
 <code>
         pip install keras==2.2.5
-</code>
+</code><br>
 <code>
         pip install "numpy<1.17"
-</code>
+</code><br>
 
 # Errors
 - AttributeError: 'Model' object has no attribute 'metrics_tensors'
